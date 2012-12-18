@@ -5,10 +5,10 @@ points = []
 end
 last_x = points.last[:x]
 
-SCHEDULER.every '2s' do
+Dashing::SCHEDULER.every '2s' do
   points.shift
   last_x += 1
   points << { x: last_x, y: rand(50) }
 
-  send_event('convergence', points: points)
+  Dashing::Application.send_event('convergence', points: points)
 end

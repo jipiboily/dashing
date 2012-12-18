@@ -25,4 +25,6 @@ Gem::Specification.new do |s|
   s.add_dependency('thor')
   s.add_dependency('sprockets')
 
+  s.add_development_dependency('pry')
+
 end
