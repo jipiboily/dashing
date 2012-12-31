@@ -12,7 +12,7 @@ module Dashing
   end
 
   def send_event(id, data)
-    req = Net::HTTP::Post.new("/widgets/#{id}")
+    req = Net::HTTP::Post.new("#{settings.root_path}widgets/#{id}")
     req["content-type"] = "application/json"
     req.body = JSON.unparse(data.merge(:auth_token => Dashing::CLI.auth_token))
     res = Net::HTTP.new('localhost', 3030).start { |http| http.request(req) }

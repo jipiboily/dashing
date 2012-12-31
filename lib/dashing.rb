@@ -13,22 +13,36 @@ module Dashing
   class Application < Sinatra::Base
     if Rails && Rails.root
       set :root, Rails.root
-      set :root_path, '/dashing'
+      set :root_path, '/dashing/'
+
+      Rails.application.assets.append_path(Rails.root.join('vendor','assets','fonts'))
+      Rails.application.assets.append_path(Rails.root.join('app','dashing','widgets'))
+      Rails.application.assets.append_path(File.expand_path('../../javascripts', __FILE__)) # for some reasons, we can't do the same as the two previous lines
+
+      Rails.application.config.assets.precompile += %w( dashing/application.js dashing/application.css )
+      set :views, Rails.root.join('app', 'dashing', 'dashboards')
+      set :widget_path, "#{settings.root}/app/dashing/widgets/"
+
+      set :lock, true
+      set :threaded, true
     else
       set :root, Dir.pwd
       set :root_path, '/'
+
+      set :sprockets,     Sprockets::Environment.new(settings.root)
+      set :assets_prefix, '/assets'
+      set :digest_assets, false
+      ['assets/javascripts', 'assets/stylesheets', 'assets/fonts', 'assets/images', 'widgets', File.expand_path('../../javascripts', __FILE__)]. each do |path|
+        settings.sprockets.append_path path
+      end
+
+      set server: 'thin'
+      set :public_folder, File.join(settings.root, 'public')
+      set :views, File.join(settings.root, 'dashboards')
+      set :widget_path, File.join(settings.root, 'widgets')
     end
 
-    set :sprockets,     Sprockets::Environment.new(settings.root)
-    set :assets_prefix, '/assets'
-    set :digest_assets, false
-    ['assets/javascripts', 'assets/stylesheets', 'assets/fonts', 'assets/images', 'widgets', File.expand_path('../../javascripts', __FILE__)]. each do |path|
-      settings.sprockets.append_path path
-    end
-
-    set server: 'thin', connections: [], history: {}
-    set :public_folder, File.join(settings.root, 'public')
-    set :views, File.join(settings.root, 'dashboards')
+    set connections: [], history: {}
     set :default_dashboard, nil
     set :auth_token, nil
 
@@ -64,7 +78,7 @@ module Dashing
     get '/views/:widget?.html' do
       protected!
       widget = params[:widget]
-      send_file File.join(settings.root, 'widgets', widget, "#{widget}.html")
+      send_file File.join(settings.widget_path, widget, "#{widget}.html")
     end
 
     post '/widgets/:id' do
