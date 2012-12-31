@@ -22,9 +22,6 @@ module Dashing
       Rails.application.config.assets.precompile += %w( dashing/application.js dashing/application.css )
       set :views, Rails.root.join('app', 'dashing', 'dashboards')
       set :widget_path, "#{settings.root}/app/dashing/widgets/"
-
-      set :lock, true
-      set :threaded, true
     else
       set :root, Dir.pwd
       set :root_path, '/'
